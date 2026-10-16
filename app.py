@@ -1,26 +1,30 @@
 import os
 import streamlit as st
-from huggingface_hub import InferenceClient
+from openai import OpenAI
 
 st.set_page_config(page_title="Mera Chatbot", page_icon="🤖")
 st.title("🤖 Mera Chatbot")
 
-MODEL_ID = "Qwen/Qwen2.5-7B-Instruct"
+# OpenRouter model. Dusra model chahiye to yahan badal sakte hain.
+MODEL_ID = "meta-llama/llama-3.3-70b-instruct:free"
 SYSTEM_PROMPT = "Aap ek madadgar assistant hain. Hindi ya English mein, jo user ne use kiya ho, usi mein jawab dein."
 
-# Token: pehle environment variable, phir Streamlit secrets se lein
-token = os.environ.get("HF_TOKEN")
-if not token:
+# Key: pehle environment variable, phir Streamlit secrets se lein
+api_key = os.environ.get("OPENROUTER_API_KEY")
+if not api_key:
     try:
-        token = st.secrets["HF_TOKEN"]
+        api_key = st.secrets["OPENROUTER_API_KEY"]
     except Exception:
-        token = None
+        api_key = None
 
-if not token:
-    st.error("HF_TOKEN set nahi hai. App settings mein secret add karein.")
+if not api_key:
+    st.error("OPENROUTER_API_KEY set nahi hai. App settings mein secret add karein.")
     st.stop()
 
-client = InferenceClient(model=MODEL_ID, token=token)
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=api_key,
+)
 
 # Chat history session mein save karein
 if "messages" not in st.session_state:
@@ -42,7 +46,12 @@ if prompt := st.chat_input("Apna sawal likhein..."):
     with st.chat_message("assistant"):
         with st.spinner("Soch raha hoon..."):
             try:
-                response = client.chat_completion(messages, max_tokens=512, temperature=0.7)
+                response = client.chat.completions.create(
+                    model=MODEL_ID,
+                    messages=messages,
+                    max_tokens=512,
+                    temperature=0.7,
+                )
                 reply = response.choices[0].message.content
             except Exception as e:
                 reply = f"Error aaya: {e}"
