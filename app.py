@@ -5,8 +5,8 @@ from openai import OpenAI
 st.set_page_config(page_title="Mera Chatbot", page_icon="🤖")
 st.title("🤖 Mera Chatbot")
 
-# OpenRouter model. Dusra model chahiye to yahan badal sakte hain.
-MODEL_ID = "meta-llama/llama-3.3-70b-instruct:free"
+# OpenRouter model slug. Error aane par OpenRouter jo slug suggest kare, wahi yahan daalein.
+MODEL_ID = "meta-llama/llama-3.3-70b-instruct"
 SYSTEM_PROMPT = "Aap ek madadgar assistant hain. Hindi ya English mein, jo user ne use kiya ho, usi mein jawab dein."
 
 # Key: pehle environment variable, phir Streamlit secrets se lein
